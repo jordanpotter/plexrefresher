@@ -26,7 +26,8 @@ func main() {
 		log.Fatalf("Unexpected error while creating Plex refresher: %v", err)
 	}
 
-	if err = pr.RefreshLibrary(library); err != nil {
-		log.Fatalf("Unexpected error while refreshing library %q: %v", library, err)
+	err = pr.RefreshLibrary(library)
+	if err != nil {
+		log.Fatalf("Unexpected error while refreshing Plex library %q: %v", library, err)
 	}
 }
