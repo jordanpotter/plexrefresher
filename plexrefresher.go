@@ -1,50 +1,30 @@
 package plexrefresher
 
 import (
-	"fmt"
 	"net/http"
+	"net/url"
 
 	"github.com/pkg/errors"
 )
 
 type PlexRefresher struct {
-	endpoint string
-	token    string
+	httpClient *http.Client
+	endpoint   string
+	token      string
 }
 
 func New(endpoint, token string) (*PlexRefresher, error) {
-	pr := PlexRefresher{endpoint, token}
-
-	if err := pr.Ping(); err != nil {
-		return nil, errors.Wrap(err, "failed to test connection")
+	if _, err := url.Parse(endpoint); err != nil {
+		return nil, errors.Wrap(err, "failed to parse endpoint")
 	}
 
-	return &pr, nil
-}
-
-func (pr *PlexRefresher) Ping() error {
-	url := fmt.Sprintf("%s/?X-Plex-Token=%s", pr.endpoint, pr.token)
-	resp, err := http.Get(url)
-	if err != nil {
-		return errors.Wrap(err, "failed HTTP request")
-	}
-	defer resp.Body.Close()
-
-	return nil
-}
-
-func (pr *PlexRefresher) RefreshLibrary(title string) error {
-	library, err := pr.library(title)
-	if err != nil {
-		return errors.Wrapf(err, "failed to find library %q", title)
+	if token == "" {
+		return nil, errors.New("takon cannot be empty")
 	}
 
-	url := fmt.Sprintf("%s/library/sections/%s/refresh?X-Plex-Token=%s", pr.endpoint, library.Key, pr.token)
-	resp, err := http.Get(url)
-	if err != nil {
-		return errors.Wrap(err, "failed HTTP request")
-	}
-	defer resp.Body.Close()
-
-	return nil
+	return &PlexRefresher{
+		httpClient: &http.Client{},
+		endpoint:   endpoint,
+		token:      token,
+	}, nil
 }

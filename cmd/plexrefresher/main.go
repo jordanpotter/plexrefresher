@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 
@@ -26,7 +27,7 @@ func main() {
 		log.Fatalf("Unexpected error while creating Plex refresher: %v", err)
 	}
 
-	err = pr.RefreshLibrary(library)
+	err = pr.Refresh(context.Background(), library)
 	if err != nil {
 		log.Fatalf("Unexpected error while refreshing Plex library %q: %v", library, err)
 	}

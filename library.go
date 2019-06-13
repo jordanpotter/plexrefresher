@@ -1,9 +1,9 @@
 package plexrefresher
 
 import (
+	"context"
 	"encoding/xml"
 	"fmt"
-	"net/http"
 
 	"github.com/pkg/errors"
 )
@@ -20,8 +20,8 @@ type Library struct {
 	Title   string   `xml:"title,attr"`
 }
 
-func (pr *PlexRefresher) library(title string) (*Library, error) {
-	libraries, err := pr.libraries()
+func (pr *PlexRefresher) library(ctx context.Context, title string) (*Library, error) {
+	libraries, err := pr.libraries(ctx)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to get libraries")
 	}
@@ -35,11 +35,11 @@ func (pr *PlexRefresher) library(title string) (*Library, error) {
 	return nil, errors.Errorf("no matching library with title %q", title)
 }
 
-func (pr *PlexRefresher) libraries() ([]Library, error) {
+func (pr *PlexRefresher) libraries(ctx context.Context) ([]Library, error) {
 	url := fmt.Sprintf("%s/library/sections?X-Plex-Token=%s", pr.endpoint, pr.token)
-	resp, err := http.Get(url)
+	resp, err := pr.get(ctx, url)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed HTTP request")
+		return nil, errors.Wrap(err, "failed get request")
 	}
 	defer resp.Body.Close()
 
